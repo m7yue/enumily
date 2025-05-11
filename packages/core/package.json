@@ -1,0 +1,46 @@
+{
+  "name": "enumily",
+  "private": false,
+  "version": "0.0.1",
+  "description": "a powerful and flexible utility for creating enums, addressing the limitations of TypeScript's native enum and const objects.",
+  "keywords": [
+    "typescript enum",
+    "enum const",
+    "ts enum",
+    "const enum"
+  ],
+  "author": "m7yue <wl7yue@163.com>",
+  "homepage": "https://github.com/m7yue/enumily",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/m7yue/enumily"
+  },
+  "bugs": {
+    "url": "https://github.com/m7yue/enumily/issues",
+    "email": "wl7yue@163.com"
+  },
+  "files": [
+    "lib"
+  ],
+  "license": "MIT",
+  "main": "lib/cjs/index.js",
+  "module": "lib/esm/index.js",
+  "types": "lib/cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/cjs/index.d.ts",
+      "require": "./lib/cjs/index.js",
+      "import": "./lib/esm/index.js"
+    }
+  },
+  "scripts": {
+    "test": "jest --config=../../jest.config.js"    
+  },
+  "publishConfig": {
+    "access": "public",
+    "directory": "lib"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.3.2"
+  }
+}

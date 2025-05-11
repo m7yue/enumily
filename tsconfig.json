@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2017", 
+    "lib": ["ESNext", "DOM"], 
+    "module": "commonjs", 
+    "baseUrl": "./",
+    "declaration": true,
+    "esModuleInterop": true, 
+    "forceConsistentCasingInFileNames": true, 
+    "strict": true, 
+    "skipLibCheck": true 
+  },
+  "include": ["./packages"]
+}
