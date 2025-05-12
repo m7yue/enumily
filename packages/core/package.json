@@ -20,7 +20,10 @@
     "email": "wl7yue@163.com"
   },
   "files": [
-    "lib"
+    "lib",
+    "package.json",
+    "LICENSE",
+    "README.md"
   ],
   "license": "MIT",
   "main": "lib/cjs/index.js",
