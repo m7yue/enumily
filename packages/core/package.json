@@ -40,8 +40,7 @@
     "test": "jest --config=../../jest.config.js"
   },
   "publishConfig": {
-    "access": "public",
-    "directory": "lib"
+    "access": "public"
   },
   "peerDependencies": {
     "typescript": ">=5.3.2"
