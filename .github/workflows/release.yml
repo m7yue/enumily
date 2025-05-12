@@ -23,6 +23,8 @@ jobs:
         with:
           node-version: 20.x
           cache: 'pnpm'
+          with: 
+            version: 8.x
 
       - name: Install Dependencies
         run: pnpm install
