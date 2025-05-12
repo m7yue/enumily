@@ -1,7 +1,7 @@
 {
   "name": "enumily",
   "private": false,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "a powerful and flexible utility for creating enums, addressing the limitations of TypeScript's native enum and const objects.",
   "keywords": [
     "typescript enum",
