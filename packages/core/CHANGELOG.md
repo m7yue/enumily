@@ -1,5 +1,11 @@
 # enumily
 
+## 0.1.0
+
+### Minor Changes
+
+- remove list util to enumily/util
+
 ## 0.0.2
 
 ### Patch Changes
