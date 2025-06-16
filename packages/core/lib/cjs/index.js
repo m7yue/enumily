@@ -37,58 +37,16 @@ const createEnum = (source, option) => {
     const $getKey = (value) => {
         return invertedMap.get(value);
     };
-    const $toList = (arr, options) => {
-        const { fieldNames } = options || defaultListOptions;
-        const { key: keyField, value: valueField, label: labelField } = fieldNames;
+    const $toList = (arr) => {
         const list = arr.map((v) => {
             const key = $getKey(v[0]);
             const label = v[1];
             const value = v[0];
             return {
-                [keyField]: key,
-                [valueField]: value,
-                [labelField]: label,
+                key,
+                value,
+                label,
             };
-        });
-        const pick = (...values) => {
-            return list.filter((item) => {
-                const v = item[valueField];
-                return values.includes(v);
-            });
-        };
-        const omit = (...values) => {
-            return list.filter((item) => {
-                const v = item[valueField];
-                return !values.includes(v);
-            });
-        };
-        const getValueLabelMap = (...values) => {
-            return values.length === 0
-                ? Object.fromEntries(list.map((item) => [item[valueField], item[labelField]]))
-                : Object.fromEntries(list.filter((item) => {
-                    const v = item[valueField];
-                    return values.includes(v);
-                }).map((item) => [item[valueField], item[labelField]]));
-        };
-        Object.defineProperties(list, {
-            pick: {
-                value: pick,
-                writable: false,
-                enumerable: false,
-                configurable: false
-            },
-            omit: {
-                value: omit,
-                writable: false,
-                enumerable: false,
-                configurable: false
-            },
-            getValueLabelMap: {
-                value: getValueLabelMap,
-                writable: false,
-                enumerable: false,
-                configurable: false
-            },
         });
         return list;
     };

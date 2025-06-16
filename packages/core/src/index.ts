@@ -15,6 +15,13 @@ export type EnumMetaType = number | string;
  */
 export type SourceType = Record<EnumMetaType, EnumMetaType>
 
+/**
+ * 双向映射对象 (Create bidirectional mapping for numeric enums)
+ * @template T - 枚举类型对象 (Must be numeric enum type object)
+ */
+ export type ReflectType<T extends SourceType> = {
+  [P in keyof T as T[P]]: P;
+};
 
 /**
  * 创建数值枚举的双向映射对象 (Create bidirectional mapping for numeric enums)
@@ -69,59 +76,10 @@ export type LastInUnion<U extends any> = UnionToIntersection<U extends U ? (x: U
  * @template U - 联合类型 (Union type to be converted)
  * @template Last - 联合类型中的最后一个类型 (Last type in the union)
  */
-export type UnionToTuple<U extends any, Last = LastInUnion<U>> = [U] extends [never]
-  ? []
-  : [...UnionToTuple<Exclude<U, Last>>, Last];
-
-/**
- * 将枚举的键值对转换为带有自定义字段名称的对象列表 (Convert enum key-value pairs to an object list with custom field names)
- * @template Source - 枚举的源类型 (Source enum type)
- * @template LabelEntities - 表示值和标签对的元组数组 (Tuple array of value-label pairs)
- * @template Option - 自定义字段名称的选项类型 (Options for custom field names)
- * @template Res - 结果列表的类型 (Result list type)
- * @template KeyField - 自定义键字段名称 (Custom key field name)
- * @template ValueField - 自定义值字段名称 (Custom value field name)
- * @template LabelField - 自定义标签字段名称 (Custom label field name)
- * @template Key - 源的键类型 (Source key type)
- */
-type ToLabelList<
-  Source extends SourceType,
-  LabelEntities extends [Source[keyof Source], string][],
-  Option extends ToListOptions = DefaultListOptions,
-  Res extends any[] = [],
-  KeyField extends string = Option['fieldNames']['key'],
-  ValueField extends string = Option['fieldNames']['value'],
-  LabelField extends string = Option['fieldNames']['label'],
-  Key extends keyof Source = keyof Source
-> = LabelEntities extends [infer F, ...infer Rest]
-  ? F extends [infer V, infer L]
-    ? V extends Source[Key]
-        ? Rest extends [any, string][]
-          ? ToLabelList<
-              Source,
-              Rest,
-              Option,
-              [
-                ...Res,
-                {
-                  [P in KeyField | ValueField | LabelField]: P extends KeyField
-                    ? Key extends Key
-                      ? IsEqual<V, Source[Key]> extends true
-                        ? Key
-                        : never
-                      : never
-                    : P extends ValueField
-                      ? V
-                      : P extends LabelField
-                        ? L
-                        : never
-                }
-              ]
-            >
-          : Res
-        : Res
-    : Res
-  : Res;
+ export type UnionToTuple<U extends any, Res extends any[] = [], Last = LastInUnion<U>> =
+ [U] extends [never]
+ ? Res
+ : UnionToTuple<Exclude<U, Last>, [Last, ...Res]>;
 
 /**
  * 配置枚举的选项类型 (Options for configuring enum properties)
@@ -139,17 +97,6 @@ export type EnumOptions = {
  */
 export type DefaultEnumOptions = {
   inverted: false;
-}
-
-/**
- * 将枚举转换为列表的选项 (Options for converting enum to optionList)
- */ 
-export type ToListOptions = {
-  fieldNames: {
-    key: string;
-    value: string;
-    label: string;
-  };
 }
 
 /**
@@ -187,69 +134,41 @@ export type EnumKey<E extends BaseResult> = Exclude<keyof E, ExcludeKeys>;
 export type EnumValue<E extends BaseResult> = E[EnumKey<E>]
 
 /**
- * 从列表中选择特定值的结果类型 (Result type for selecting specific values from a list)
- * @template LabelList - 标签列表类型 (Label list type)
- * @template Options - 列表选项类型 (List options type)
- * @template VS - 选择的值类型 (Selected value type)
- * @template Result - 结果类型 (Result type)
- */
-type PickLabelListResult<
-  LabelList extends any[],
-  Options extends ToListOptions,
-  VS extends LabelList[number][Options['fieldNames']['value']][],
-  Result extends any[] = [],
-> = LabelList extends [infer F, ...infer Rest]
-  ? F extends Record<Options['fieldNames']['value'], infer V>
-    ? V extends VS[number]
-      ? PickLabelListResult<Rest, Options, VS, [...Result, F]>
-      : PickLabelListResult<Rest, Options, VS, Result>
-    : Result
-  : Result;
-
-/**
- * 从列表中排除特定值的结果类型 (Result type for excluding specific values from a list)
- * @template LabelList - 标签列表类型 (Label list type)
- * @template Options - 列表选项类型 (List options type)
- * @template VS - 要排除的值类型 (Value type to exclude)
- * @template Result - 结果类型 (Result type)
- */
-type OmitLabelListResult<
-  LabelList extends any[],
-  Options extends ToListOptions,
-  VS extends LabelList[number][Options['fieldNames']['value']][],
-  Result extends any[] = [],
-> = LabelList extends [infer F, ...infer Rest]
-  ? F extends Record<Options['fieldNames']['value'], infer V>
-    ? V extends VS[number]
-      ? OmitLabelListResult<Rest, Options, VS, Result>
-      : OmitLabelListResult<Rest, Options, VS, [...Result, F]>
-    : Result
-  : Result;
-
-
-/**
- * 根据列表获取特定值的value和label映射 (Gets value-label mapping for specific values from a list)
- * @template LabelList - 标签列表类型 (Label list type)
- * @template Options - 列表选项类型 (List options type)
- * @template VS - 选择的值类型 (Selected value type)
- * @template Result - 结果类型 (Result type)
- */
-type GetValueLabelMap<
-  LabelList extends any[],
-  Options extends ToListOptions,
-  VS extends any[],
-  PickList = PickLabelListResult<LabelList, Options, VS>,
-  Result extends Record<any, any> = {},
-> = PickList extends [infer F, ...infer Rest]
-  ? F extends Record<Options['fieldNames']['value'], infer V> & Record<Options['fieldNames']['label'], infer L>
-    ? V extends LabelList[number][Options['fieldNames']['value']]
-      ? L extends LabelList[number][Options['fieldNames']['label']]
-        ? GetValueLabelMap<Rest, Options, VS, PickLabelListResult<Rest, Options, VS>, Result & { [K in V]: L }>
-        : Result
-      : Result
-    : Result
-  : Result;
-
+* 将枚举的键值对转换为带有自定义字段名称的对象列表 (Convert enum key-value pairs to an object list with custom field names)
+* @template Source - 枚举的源类型 (Source enum type)
+* @template LabelEntities - 表示值和标签对的元组数组 (Tuple array of value-label pairs)
+* @template Res - 结果列表的类型 (Result list type)
+* @template KeyField - 自定义键字段名称 (Custom key field name)
+* @template ValueField - 自定义值字段名称 (Custom value field name)
+* @template LabelField - 自定义标签字段名称 (Custom label field name)
+* @template Key - 源的键类型 (Source key type)
+*/
+type ToLabelList<
+ Source extends SourceType,
+ LabelEntities extends any[][] = [],
+ Res extends any[] = [],
+ Reflect extends any = ReflectType<Source>
+> = LabelEntities extends []
+ ? Res
+ : LabelEntities extends [infer F, ...infer Rest]
+   ? F extends any[]
+     ? Rest extends any[]
+       ? ToLabelList<
+         Source,
+         Rest,
+         [
+           ...Res,
+           {
+             key: Reflect[F[0]],
+             value: F[0],
+             label: F[1]
+           }
+         ],
+         Reflect
+       >
+     : never
+   : never
+ : never
 
 /**
  * 将枚举转换为标签列表的结果类型 (Result type for converting enum to label list)
@@ -261,51 +180,8 @@ type GetValueLabelMap<
 type ToLabelListResult<
   M extends SourceType,
   ValueLabelEntities extends [any, any][],
-  O extends ToListOptions,
-  List extends any[] = ToLabelList<M, ValueLabelEntities, O>,
-  Values extends any[] = UnionToTuple<M[keyof M]>,
-  > = List & {
-  /**
-   * 从列表中选择特定值的类型安全实现 (Type-safe implementation for picking specific values from a list)
-   * @template VS - 选择的值类型 (Value type to pick)
-   * @param values - 要选择的值数组 (Array of values to pick)
-   * @returns 包含匹配项的标签列表 (Label list containing matched items)
-   * @example
-   * const myEnum = createEnum({ A: 1, B: 2 });
-   * const list = myEnum.$toList(
-   *   [[1, 'Label A'], [2, 'Label B']],
-   *   { fieldNames: { key: 'id', value: 'val', label: 'desc' } }
-   * );
-   * console.log(list.pick(1)); // 输出: [{ id: 'A', val: 1, desc: 'Label A' }]
-   */  
-  pick: <const VS extends M[keyof M][]>(...values: VS) => PickLabelListResult<List, O, VS>;
-  /**
-   * 从列表中排除特定值的类型安全实现 (Type-safe implementation for excluding specific values from a list)
-   * @template VS - 要排除的值类型 (Value type to exclude)
-   * @param values - 要排除的值数组 (Array of values to exclude)
-   * @returns 不包含排除项的标签列表 (Label list without excluded items)
-   * @example
-   * const myEnum = createEnum({ A: 1, B: 2 });
-   * const list = myEnum.$toList(
-   *   [[1, 'Label A'], [2, 'Label B']],
-   *  { fieldNames: { key: 'id', value: 'val', label: 'desc' } }
-   * );
-   * console.log(list.omit(1)); // 输出: [{ id: 'B', val: 2, desc: 'Label B' }]
-   */
-  omit: <const VS extends M[keyof M][]>(...values: VS) => OmitLabelListResult<List, O, VS>;
-  /**
-   * 获取值和标签的映射关系 (Get mapping between values and labels)
-   * @returns 以值为key、标签为value的映射对象 (Map object with value as key and label as value)
-   * @example
-   * const myEnum = createEnum({ A: 1, B: 2 });
-   * const list = myEnum.$toList(
-   *   [[1, 'Label A'], [2, 'Label B']],
-   *   { fieldNames: { key: 'id', value: 'val', label: 'desc' } }
-   * );
-   * console.log(list.getValueLabelMap()); // 输出: { 1: 'Label A', 2: 'Label B' }
-   */
-  getValueLabelMap: <const VS extends M[keyof M][]>(...values: VS) => VS['length'] extends 0 ?  ExpandRecursively<GetValueLabelMap<List, O, Values>> :  ExpandRecursively<GetValueLabelMap<List, O, VS>>;
-};
+  List extends any[] = ToLabelList<M, ValueLabelEntities>,
+  > = List
 
 /**
  * 枚举基础结构定义 (Fundamental structure definition for Enum)
@@ -340,7 +216,7 @@ type BaseResult<
    * const myEnum = createEnum({ A: 1, B: 2 });
    * console.log(myEnum.$length); // 输出: 2
    */
-  $length: UnionToTuple<Exclude<keyof M, symbol>>['length'];
+  $length: [...UnionToTuple<keyof M>]['length'];
   /**
    * 根据键获取对应的枚举值 (Get enum value by key)
    * @template K - 枚举键的类型 (Type of enum key)
@@ -384,7 +260,7 @@ type BaseResult<
    * //   { id: 'B', val: 2, desc: 'Label B' }
    * // ]
    */  
-  $toList: <const ES extends ValueLabelEntities, const O extends ToListOptions = DefaultListOptions>(entities: ES, options?: O) => ToLabelListResult<M, ES, O>;
+  $toList: <const ES extends ValueLabelEntities>(entities: ES) => ToLabelListResult<M, ES>;
   /**
    * 扩展当前枚举，添加新的键值对 (Extend current enum with new key-value pairs)
    * @template NE - 新枚举键值对的类型约束 (Type constraint for new enum entries)
@@ -452,64 +328,17 @@ export const createEnum = <const S extends SourceType, const EO extends EnumOpti
     string
   ][];
 
-  const $toList = <const ES extends ValueLabelEntities, const O extends ToListOptions = DefaultListOptions>(arr: ES, options?: O) => {
-    const { fieldNames } = options || defaultListOptions;
-    const { key: keyField, value: valueField, label: labelField } = fieldNames;
-
+  const $toList = <const ES extends ValueLabelEntities>(arr: ES) => {
     const list = arr.map((v) => {
       const key = $getKey(v[0])!;
       const label = v[1]
       const value = v[0]
 
       return {
-        [keyField]: key,
-        [valueField]: value,
-        [labelField]: label,
+        key,
+        value,
+        label,
       }
-    })
-
-    const pick = <const VS extends ES[number][0][]>(...values: VS) => {
-      return list.filter((item) => {
-        const v = item[valueField] as Value
-        return values.includes(v)
-      })
-    }
-
-    const omit = <const VS extends Value[]>(...values: VS) => {
-      return list.filter((item) => {
-        const v = item[valueField] as Value
-        return !values.includes(v)
-      })
-    }
-
-    const getValueLabelMap = <const VS extends Value[]>(...values: VS) => {
-      return values.length === 0  
-        ? Object.fromEntries(list.map((item) => [item[valueField], item[labelField]]))
-        : Object.fromEntries(list.filter((item) => {
-          const v = item[valueField] as Value
-          return values.includes(v)
-        }).map((item) => [item[valueField], item[labelField]]))
-    }
-
-    Object.defineProperties(list, {
-      pick: {
-        value: pick,
-        writable: false,
-        enumerable: false,
-        configurable: false
-      },
-      omit: {
-        value: omit,
-        writable: false,
-        enumerable: false,
-        configurable: false
-      },
-      getValueLabelMap: {
-        value: getValueLabelMap,
-        writable: false,
-        enumerable: false,
-        configurable: false
-      },
     })
 
     return list;

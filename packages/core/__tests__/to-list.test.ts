@@ -1,5 +1,6 @@
 import {describe, expect, test} from '@jest/globals';
 import { createEnum } from '../src'
+import { listPick, listOmit, getValueLabelMap } from '../src/util'
 
 const DirectionEnum = createEnum({
   /** 向上：1 */
@@ -41,7 +42,7 @@ describe('toList use', () => {
   });
 
   test('pick', () => {
-    const pick = toList.pick(DirectionEnum.Up)
+    const pick = listPick(toList, [DirectionEnum.Up])
     expect(pick).toEqual([{
       key: "Up",
       value: 1,
@@ -50,7 +51,7 @@ describe('toList use', () => {
   });
 
   test('omit', () => {
-    const omit = toList.omit(DirectionEnum.Up)
+    const omit = listOmit(toList, [DirectionEnum.Up])
     expect(omit).toEqual([{
       key: "Down",
       value: 2,
@@ -67,7 +68,7 @@ describe('toList use', () => {
   });
 
   test('labelMap', () => {
-    const allValueLabelMap = toList.getValueLabelMap()
+    const allValueLabelMap = getValueLabelMap(toList)
     expect(allValueLabelMap).toEqual({
       1: '上',
       2: '下',
@@ -75,10 +76,10 @@ describe('toList use', () => {
       4: '右',
     });
 
-    const pickValueLabelMap = toList.getValueLabelMap(
+    const pickValueLabelMap = getValueLabelMap(toList, [
       DirectionEnum.Up,
       DirectionEnum.Left
-    )
+    ])
     expect(pickValueLabelMap).toEqual({
       1: '上',
       3: '左',

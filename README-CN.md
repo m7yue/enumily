@@ -238,7 +238,7 @@ console.log(labeledList);
   ```
 ### **5.8 `$toList` 的扩展能力**
 
-#### **5.8.1 `pick`**
+#### **5.8.1 `listPick`**
 从列表中选择特定值。
 
 - **参数**：
@@ -246,7 +246,8 @@ console.log(labeledList);
 - **返回值**：一个新的列表，仅包含指定值的对象。
 - **示例**：
   ```typescript
-  const picked = list.pick(0, 2);
+  import { listPick } from 'enumily/util';
+  const picked = listPick(list, [2]);
   console.log(picked);
   // 输出:
   // [
@@ -257,7 +258,7 @@ console.log(labeledList);
 
 ---
 
-#### **5.8.2 `omit`**
+#### **5.8.2 `listOmit`**
 从列表中排除特定值。
 
 - **参数**：
@@ -265,7 +266,9 @@ console.log(labeledList);
 - **返回值**：一个新的列表，不包含指定值的对象。
 - **示例**：
   ```typescript
-  const omitted = list.omit(1);
+  import { listOmit } from 'enumily/util';
+
+  const omitted = listOmit(list, [1]);
   console.log(omitted);
   // 输出:
   // [
@@ -282,7 +285,9 @@ console.log(labeledList);
 - **返回值**：一个对象，键为值，值为标签。
 - **示例**：
   ```typescript
-  const valueLabelMap = list.getValueLabelMap();
+  import { getValueLabelMap } from 'enumily/util';
+  
+  const valueLabelMap = getValueLabelMap(list);
   console.log(valueLabelMap);
   // 输出: { 0: '操作成功', 1: '操作失败', 2: '正在处理中' }
   ```

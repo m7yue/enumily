@@ -256,7 +256,9 @@ Select specific values from the list.
 - **Return Value**: A new list containing only the selected values.
 - **Example**:
   ```typescript
-  const picked = list.pick(0, 2);
+  import { listPick } from 'enumily/util';
+
+  const picked = listPick(list, [2]);
   console.log(picked);
   // Output:
   // [
@@ -267,7 +269,7 @@ Select specific values from the list.
 
 ---
 
-#### **5.8.2 `omit`**
+#### **5.8.2 `listOmit`**
 Exclude specific values from the list.
 
 - **Parameters**:
@@ -275,7 +277,7 @@ Exclude specific values from the list.
 - **Return Value**: A new list excluding the specified values.
 - **Example**:
   ```typescript
-  const omitted = list.omit(1);
+  const omitted = listOmit(list, [1]);
   console.log(omitted);
   // Output:
   // [
@@ -292,6 +294,8 @@ Get a mapping of values to labels.
 - **Return Value**: An object where keys are values and values are labels.
 - **Example**:
   ```typescript
+  import { getValueLabelMap } from 'enumily/util';
+  
   const valueLabelMap = list.getValueLabelMap();
   console.log(valueLabelMap);
   // Output: { 0: 'Operation Successful', 1: 'Operation Failed', 2: 'Processing' }
